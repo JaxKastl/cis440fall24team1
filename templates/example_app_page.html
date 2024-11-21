@@ -31,12 +31,12 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h1 class="text-center">Welcome to Your App</h1>
+        <h1 class="text-center">Welcome to Chatterbox!</h1>
 
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main" type="button" role="tab" aria-controls="main" aria-selected="true">Main</button>
+                <button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main" type="button" role="tab" aria-controls="main" aria-selected="true">Chat Rooms</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="account-management-tab" data-bs-toggle="tab" data-bs-target="#account-management" type="button" role="tab" aria-controls="account-management" aria-selected="false">Account Management</button>
@@ -47,7 +47,41 @@
         <div class="tab-content mt-3" id="myTabContent">
             <!-- Main tab content -->
             <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
-                <p>Welcome to the main section of your app. Add more content here as needed.</p>
+                <!-- Menu Bar -->
+                <div class="d-flex justify-content-between mb-3">
+                    <!-- Existing Buttons -->
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="loadChatroomsIntoTable()">
+                            <i class="fas fa-sync-alt"></i> Refresh Chatroom List
+                        </button>
+                        <button class="btn btn-success" onclick="openAddChatroomModal()">
+                            <i class="fas fa-user-plus"></i> Add a New Chatroom
+                        </button>
+                    </div>
+
+                    <!-- Quick Chat Section -->
+                    <div class="d-flex align-items-center">
+                        <span class="me-2 text-nowrap">Quick Chat:</span>
+                        <input type="text" id="quick_chat_message" class="form-control me-2" placeholder="Type a message...">
+                        <select id="quick_chat_room" class="form-select me-2">
+                            <option selected>Select a room...</option>
+                            <!-- Additional room options can be added here -->
+                        </select>
+                        <button class="btn btn-primary" onclick="quickChatSend()">Send</button>
+                    </div>
+                </div>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Chatroom</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Account Management tab content -->
@@ -163,7 +197,7 @@
     </div>
 </div>
 
-    <!-- Modal for Editing a User -->
+<!-- Modal for Editing a User -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -198,8 +232,67 @@
     </div>
 </div>
 
+<!-- Modal for Adding a New Chatroom -->
+<div class="modal fade" id="addChatroomModal" tabindex="-1" aria-labelledby="addChatroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChatroomModalLabel">Create New Chatroom</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addChatroomForm">
+                    <!-- Chatroom name input -->
+                    <div class="mb-3">
+                        <label for="chatroomName" class="form-label">Chatroom Name</label>
+                        <input type="text" class="form-control" id="chatroomName" name="name" placeholder="Enter chatroom name" required>
+                    </div>
+                    <!-- Description input -->
+                    <div class="mb-3">
+                        <label for="chatroomDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="chatroomDescription" name="description" rows="3" placeholder="Enter description" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalCreateChatroomButton" type="submit" class="btn btn-primary" form="addChatroomForm">Create Chatroom</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script src="static/js/example_app_page.js"></script> <!-- Handles user interactions on the websocket -->
+<!-- Modal for Editing a Chatroom -->
+<div class="modal fade" id="editChatroomModal" tabindex="-1" aria-labelledby="editChatroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editChatroomModalLabel">Edit Chatroom</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editChatroomForm">
+                    <!-- Chatroom name input -->
+                    <div class="mb-3">
+                        <label for="editChatroomName" class="form-label">Chatroom Name</label>
+                        <input type="text" class="form-control" id="editChatroomName" name="name" placeholder="Enter chatroom name" required>
+                    </div>
+                    <!-- Description input -->
+                    <div class="mb-3">
+                        <label for="editChatroomDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editChatroomDescription" name="description" rows="3" placeholder="Enter description" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalEditChatroomButton" type="submit" class="btn btn-primary" form="editChatroomForm">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="static/js/example_app_page.js"></script> <!-- Handles user interactions on the websocket -->
 
 </body>
 </html>

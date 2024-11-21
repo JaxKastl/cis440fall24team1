@@ -92,9 +92,74 @@ document.getElementById('editUserForm').addEventListener('submit', async functio
     }
 });
 
+    // Listener for adding a chatroom (To be placed inside the DOMContentLoaded event listener)
+    document.getElementById('addChatroomForm').addEventListener('submit', async function(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        // Collect data from the form inputs
+        const name = document.getElementById('chatroomName').value;
+        const description = document.getElementById('chatroomDescription').value;
+
+        try {
+            // Call the DataModel's addChatroom function to add the chatroom
+            await DataModel.addChatroom(name, description);
+            console.log('Chatroom created:', name);
+            alert('Chatroom successfully added!');
+
+            // Clear the input fields after chatroom is added
+            document.getElementById('chatroomName').value = '';
+            document.getElementById('chatroomDescription').value = '';
+
+            // Hide the modal using Bootstrap's modal instance
+            const addChatroomModalEl = document.getElementById('addChatroomModal');
+            const modalInstance = bootstrap.Modal.getInstance(addChatroomModalEl);
+            modalInstance.hide();
+
+            // Refresh chatroom list in the table
+            loadChatroomsIntoTable();
+        } catch (error) {
+            console.error('Error adding chatroom:', error);
+            alert('Error adding chatroom. Please try again.');
+        }
+    });
+
+    // Listener for editing a chatroom (To be placed inside the DOMContentLoaded event listener)
+    document.getElementById('editChatroomForm').addEventListener('submit', async function(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        // Collect data from the form inputs
+        const name = document.getElementById('editChatroomName').value;
+        const description = document.getElementById('editChatroomDescription').value;
+
+        try {
+            // Call the DataModel's editSelectedChatroom function to update the chatroom
+            await DataModel.editSelectedChatroom(name, description);
+
+            // Clear the modal inputs
+            document.getElementById('editChatroomName').value = '';
+            document.getElementById('editChatroomDescription').value = '';
+
+            // Hide the modal
+            const editChatroomModalEl = document.getElementById('editChatroomModal');
+            const modalInstance = bootstrap.Modal.getInstance(editChatroomModalEl);
+            modalInstance.hide();
+
+            // Alert that the chatroom was successfully edited
+            alert('Chatroom successfully edited!');
+
+            // Refresh chatroom list in the table
+            loadChatroomsIntoTable();
+        } catch (error) {
+            console.error('Error editing chatroom:', error);
+            alert('Error editing chatroom. Please try again.');
+        }
+    });
+
 
     adminStatus = localStorage.getItem('admin');
-    alert('adminStatus: ' + adminStatus);
+    //alert('adminStatus: ' + adminStatus);
     DataModel.admin = adminStatus;
     if (adminStatus == 'true') {
         // Load users into the table after adding a new user
@@ -105,6 +170,11 @@ document.getElementById('editUserForm').addEventListener('submit', async functio
         document.getElementById('account-management-tab').classList.add('disabled');  // Add the 'disabled' class to the tab
         document.getElementById('account-management-tab').setAttribute('disabled', 'true');  // Set the disabled attribute
     }
+
+    // Load chatrooms into the table
+    loadChatroomsIntoTable();
+    ChatSocket.setMessageCallback(handleMessage);
+    ChatSocket.connect();
 });
 
 // NOTE: PLACE ALL OF YOUR FUNCTIONS BELOW
@@ -169,7 +239,6 @@ async function deleteUser(userId) {
     }
 }
 
-// Function to load users into the HTML table
 // Function to load users into the table
 async function loadUsersIntoTable() {
     try {
@@ -225,6 +294,69 @@ async function loadUsersIntoTable() {
     }
 }
 
+// Function to load chatrooms into the table and dropdown
+async function loadChatroomsIntoTable() {
+    try {
+        const chatrooms = await DataModel.getAllChatrooms();  // Get all chatrooms from DataModel
+        
+        // Populate the table
+        const tableBody = document.querySelector('#main tbody');  // Select the table body
+        tableBody.innerHTML = '';  // Clear existing content in table
+        
+        chatrooms.forEach(chatroom => {
+            // Create a new row for each chatroom
+            const row = document.createElement('tr');
+            
+            // Chatroom name column
+           // Chatroom name column
+            const nameCell = document.createElement('td');
+            nameCell.textContent = chatroom.name;
+            nameCell.id = "room-"+chatroom.id;  // Set the cell's ID to "room-<id>"
+            row.appendChild(nameCell);
+            
+            // Description column
+            const descriptionCell = document.createElement('td');
+            descriptionCell.textContent = chatroom.description;
+            row.appendChild(descriptionCell);
+            
+            // Actions column
+            const actionsCell = document.createElement('td');
+            
+            // Edit button
+            const editButton = document.createElement('button');
+            editButton.className = 'btn btn-primary btn-sm me-2';
+            editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+            editButton.addEventListener('click', () => showEditChatroomModal(chatroom.id));
+            actionsCell.appendChild(editButton);
+            
+            // Delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger btn-sm';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Delete';
+            deleteButton.addEventListener('click', () => deleteChatroom(chatroom.id));
+            actionsCell.appendChild(deleteButton);
+            
+            row.appendChild(actionsCell);
+            tableBody.appendChild(row);
+        });
+        
+        // Populate the dropdown
+        const dropdown = document.getElementById('quick_chat_room');
+        dropdown.innerHTML = '<option selected>Select a room...</option>';  // Clear existing options, leaving default
+        
+        chatrooms.forEach(chatroom => {
+            const option = document.createElement('option');
+            option.value = chatroom.id;  // Set value as chatroom ID
+            option.textContent = chatroom.name;  // Set display text as chatroom name
+            dropdown.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error('Error loading chatrooms into table:', error);
+        alert('Error loading chatrooms. Please try again.');
+    }
+}
+
 function openAddUserModal() {
     var addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
     addUserModal.show();
@@ -256,3 +388,108 @@ function showEditModal(userId) {
     }
 }
 
+// Function to open the Add Chatroom Modal
+function openAddChatroomModal() {
+    var addChatroomModal = new bootstrap.Modal(document.getElementById('addChatroomModal'));
+    addChatroomModal.show();
+}
+
+// Function to show the Edit Chatroom Modal with chatroom details
+function showEditChatroomModal(chatroomId) {
+    // Set the selected chatroom in DataModel
+    DataModel.setSelectedChatroom(chatroomId);  
+
+    // Get the selected chatroom object from DataModel
+    const chatroom = DataModel.getCurrentChatroom();  
+
+    // Check if the chatroom exists
+    if (chatroom) {
+        // Populate the name and description inputs in the modal with the chatroom's data
+        document.getElementById('editChatroomName').value = chatroom.name;
+        document.getElementById('editChatroomDescription').value = chatroom.description;
+
+        // Show the edit chatroom modal
+        const editChatroomModal = new bootstrap.Modal(document.getElementById('editChatroomModal'));
+        editChatroomModal.show();
+    } else {
+        console.error('Chatroom not found');
+    }
+}
+
+// Function to delete a chatroom by ID
+async function deleteChatroom(chatroomId) {
+    if (!chatroomId) {
+        console.error("Chatroom ID is required for deletion.");
+        return;
+    }
+
+    // Ask for user confirmation before proceeding with deletion
+    const isConfirmed = confirm(`Are you sure you want to delete this chatroom? This action cannot be undone.`);
+
+    // If the user confirms the deletion, proceed
+    if (!isConfirmed) {
+        return;  // Exit the function if the user doesn't confirm
+    }
+
+    try {
+        // Call DataModel's deleteChatroom function to delete the chatroom by its ID
+        DataModel.setSelectedChatroom(chatroomId);
+        await DataModel.deleteSelectedChatroom();
+        console.log(`Chatroom with ID ${chatroomId} deleted.`);
+        alert('Chatroom successfully deleted!');  // Show a success message
+        await loadChatroomsIntoTable();  // Refresh chatroom list in the table after deletion
+    } catch (error) {
+        console.error('Error deleting chatroom:', error);
+        alert('Error deleting chatroom. Please try again.');
+    }
+}
+
+// Function to send a quick chat message
+function quickChatSend() {
+    const message = document.getElementById('quick_chat_message').value.trim();
+    const roomId = document.getElementById('quick_chat_room').value;
+
+    // Check that both message and room are provided
+    if (!message) {
+        alert('Please enter a message before sending.');
+        return;
+    }
+    if (roomId === "Select a room..." || !roomId) {
+        alert('Please select a chat room before sending.');
+        return;
+    }
+
+    // Send the message through ChatSocket
+    ChatSocket.sendMessage(message, roomId);
+
+    // Clear out the message input box
+    document.getElementById('quick_chat_message').value = '';
+}
+
+function addGlowEffect(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        if (element.classList.contains('glow-effect')) {
+            element.classList.remove('glow-effect');
+            
+            // Re-add the class after a brief delay to restart the animation
+            setTimeout(() => {
+                element.classList.add('glow-effect');
+            }, 100); // 0.1 second delay
+        } else {
+            element.classList.add('glow-effect');
+        }
+    }
+}
+
+function handleMessage(message) {
+    // Construct the element ID using the room_id from the message
+    const elementId = `room-${message.room_id}`;
+    
+    // Check if the element exists in the DOM
+    const element = document.getElementById(elementId);
+    if (element) {
+        // If it exists, apply the glow effect
+        addGlowEffect(elementId);
+    }
+}
