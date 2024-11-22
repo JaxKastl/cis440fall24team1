@@ -271,3 +271,66 @@ def delete_chatroom(chatroom_id):
     db.session.commit()
 
     return jsonify({"message": "Chatroom deleted successfully!"}), 200
+
+@routes_blueprint.route('/add_expense', methods=['POST'])
+def add_expense():
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    data = request.json
+    name = data.get('name')
+    value = data.get('value')
+    chatroom_id = data.get('chatroom_id')
+
+    if not name or not value or not chatroom_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    new_expense = Expense(name=name, value=value, chatroom_id=chatroom_id, user_id=current_user.id)
+    db.session.add(new_expense)
+    db.session.commit()
+
+    return jsonify({"message": "Expense added successfully!"}), 201
+
+@routes_blueprint.route('/edit_expense/<int:expense_id>', methods=['PUT'])
+def edit_expense(expense_id):
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    expense = Expense.query.get(expense_id)
+    if not expense or expense.user_id != current_user.id:
+        return jsonify({"error": "Expense not found or not authorized"}), 404
+
+    data = request.json
+    expense.name = data.get('name', expense.name)
+    expense.value = data.get('value', expense.value)
+    db.session.commit()
+
+    return jsonify({"message": "Expense updated successfully!"}), 200
+
+@routes_blueprint.route('/delete_expense/<int:expense_id>', methods=['DELETE'])
+def delete_expense(expense_id):
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    expense = Expense.query.get(expense_id)
+    if not expense or expense.user_id != current_user.id:
+        return jsonify({"error": "Expense not found or not authorized"}), 404
+
+    db.session.delete(expense)
+    db.session.commit()
+
+    return jsonify({"message": "Expense deleted successfully!"}), 200
+
+@routes_blueprint.route('/expenses/<int:chatroom_id>', methods=['GET'])
+def get_expenses(chatroom_id):
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    expenses = Expense.query.filter_by(chatroom_id=chatroom_id, user_id=current_user.id).all()
+    expenses_data = [{"id": e.id, "name": e.name, "value": e.value} for e in expenses]
+
+    return jsonify(expenses_data), 200

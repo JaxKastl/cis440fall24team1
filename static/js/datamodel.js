@@ -232,6 +232,33 @@ const DataModel = {
         return this.currentChatroom;
     },
 
+    // Get all expenses for a specific chatroom
+    async getExpenses(chatroomId) {
+        const url = `${this.baseUrl}expenses/${chatroomId}`;
+        return await this.fetchWithAuth(url, { method: 'GET' });
+    },
+
+    // Add a new expense
+    async addExpense(name, value, chatroomId) {
+        const url = `${this.baseUrl}add_expense`;
+        const body = JSON.stringify({ name, value, chatroom_id: chatroomId });
+        return await this.fetchWithAuth(url, { method: 'POST', body });
+    },
+
+    // Edit an expense
+    async editExpense(expenseId, name, value) {
+        const url = `${this.baseUrl}edit_expense/${expenseId}`;
+        const body = JSON.stringify({ name, value });
+        return await this.fetchWithAuth(url, { method: 'PUT', body });
+    },
+
+    // Delete an expense
+    async deleteExpense(expenseId) {
+        const url = `${this.baseUrl}delete_expense/${expenseId}`;
+        return await this.fetchWithAuth(url, { method: 'DELETE' });
+    },
+
+
 
     // Function to initialize the data model by loading all users and chatrooms
     async initialize() {
