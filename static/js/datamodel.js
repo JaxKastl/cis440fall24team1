@@ -142,14 +142,14 @@ const DataModel = {
     },
 
     // Function to add a new chatroom
-    async addChatroom(name, description) {
+    async addChatroom(name, description, cost) {
         if (!name || !description) {
             console.error('Name and description are required for adding a chatroom.');
             return;
         }
 
         const url = this.baseUrl + 'add_chatroom';  // API URL for adding a new chatroom
-        const body = JSON.stringify({ name, description });
+        const body = JSON.stringify({ name, description, cost });  // Include cost when adding
 
         try {
             const newChatroom = await this.fetchWithAuth(url, { method: 'POST', body });
@@ -185,9 +185,8 @@ const DataModel = {
         }
     },
 
-
-    // Function to edit the selected chatroom (update name and description)
-    async editSelectedChatroom(name, description) {
+    // Function to edit the selected chatroom (update name, description, and cost)
+    async editSelectedChatroom(name, description, cost) {
         if (!this.currentChatroom) {
             console.error('No chatroom selected');
             return;
@@ -195,13 +194,14 @@ const DataModel = {
 
         const chatroomId = this.currentChatroom.id;
         const url = this.baseUrl + `edit_chatroom/${chatroomId}`;  // API URL for editing chatroom
-        const body = JSON.stringify({ name, description });
+        const body = JSON.stringify({ name, description, cost });  // Include cost in the body
 
         try {
             const updatedChatroom = await this.fetchWithAuth(url, { method: 'PUT', body });
             // Update the currentChatroom and chatrooms array with new values
             this.currentChatroom.name = updatedChatroom.name;
             this.currentChatroom.description = updatedChatroom.description;
+            this.currentChatroom.cost = updatedChatroom.cost;  // Update the cost
 
             // Update the chatroom in the chatrooms array
             const index = this.chatrooms.findIndex(c => c.id === chatroomId);
@@ -215,7 +215,6 @@ const DataModel = {
             throw error;
         }
     },
-
 
     // Function to set the current chatroom by its ID
     setSelectedChatroom(chatroomId) {
@@ -231,34 +230,6 @@ const DataModel = {
     getCurrentChatroom() {
         return this.currentChatroom;
     },
-
-    // Get all expenses for a specific chatroom
-    async getExpenses(chatroomId) {
-        const url = `${this.baseUrl}expenses/${chatroomId}`;
-        return await this.fetchWithAuth(url, { method: 'GET' });
-    },
-
-    // Add a new expense
-    async addExpense(name, value, chatroomId) {
-        const url = `${this.baseUrl}add_expense`;
-        const body = JSON.stringify({ name, value, chatroom_id: chatroomId });
-        return await this.fetchWithAuth(url, { method: 'POST', body });
-    },
-
-    // Edit an expense
-    async editExpense(expenseId, name, value) {
-        const url = `${this.baseUrl}edit_expense/${expenseId}`;
-        const body = JSON.stringify({ name, value });
-        return await this.fetchWithAuth(url, { method: 'PUT', body });
-    },
-
-    // Delete an expense
-    async deleteExpense(expenseId) {
-        const url = `${this.baseUrl}delete_expense/${expenseId}`;
-        return await this.fetchWithAuth(url, { method: 'DELETE' });
-    },
-
-
 
     // Function to initialize the data model by loading all users and chatrooms
     async initialize() {
