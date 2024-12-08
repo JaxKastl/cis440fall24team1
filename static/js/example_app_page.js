@@ -96,26 +96,28 @@ document.getElementById('editUserForm').addEventListener('submit', async functio
     document.getElementById('addChatroomForm').addEventListener('submit', async function(event) {
         // Prevent the default form submission behavior
         event.preventDefault();
-
+    
         // Collect data from the form inputs
         const name = document.getElementById('chatroomName').value;
         const description = document.getElementById('chatroomDescription').value;
-
+        const cost = document.getElementById('expenseCost').value;  // Collect the cost from the input field
+    
         try {
-            // Call the DataModel's addChatroom function to add the chatroom
-            await DataModel.addChatroom(name, description);
+            // Pass the cost as well to the DataModel's addChatroom function
+            await DataModel.addChatroom(name, description, cost);  // Including cost now
             console.log('Chatroom created:', name);
             alert('Chatroom successfully added!');
-
+    
             // Clear the input fields after chatroom is added
             document.getElementById('chatroomName').value = '';
             document.getElementById('chatroomDescription').value = '';
-
+            document.getElementById('expenseCost').value = '';
+    
             // Hide the modal using Bootstrap's modal instance
             const addChatroomModalEl = document.getElementById('addChatroomModal');
             const modalInstance = bootstrap.Modal.getInstance(addChatroomModalEl);
             modalInstance.hide();
-
+    
             // Refresh chatroom list in the table
             loadChatroomsIntoTable();
         } catch (error) {
@@ -123,6 +125,7 @@ document.getElementById('editUserForm').addEventListener('submit', async functio
             alert('Error adding chatroom. Please try again.');
         }
     });
+    
 
     // Listener for editing a chatroom (To be placed inside the DOMContentLoaded event listener)
     document.getElementById('editChatroomForm').addEventListener('submit', async function(event) {
@@ -294,6 +297,7 @@ async function loadUsersIntoTable() {
     }
 }
 
+
 // Function to load chatrooms into the table and dropdown
 async function loadChatroomsIntoTable() {
     try {
@@ -308,10 +312,9 @@ async function loadChatroomsIntoTable() {
             const row = document.createElement('tr');
             
             // Chatroom name column
-           // Chatroom name column
             const nameCell = document.createElement('td');
             nameCell.textContent = chatroom.name;
-            nameCell.id = "room-"+chatroom.id;  // Set the cell's ID to "room-<id>"
+            nameCell.id = "room-" + chatroom.id;  // Set the cell's ID to "room-<id>"
             row.appendChild(nameCell);
             
             // Description column
@@ -319,8 +322,13 @@ async function loadChatroomsIntoTable() {
             descriptionCell.textContent = chatroom.description;
             row.appendChild(descriptionCell);
             
-            // Actions column
-            const actionsCell = document.createElement('td');
+            // Cost column (between description and actions)
+            const costCell = document.createElement('td');
+            costCell.textContent = chatroom.cost ? chatroom.cost : 'N/A';  // Display cost if available, else 'N/A'
+            row.appendChild(costCell);
+            
+            // Actions column (this will be moved to the next column)
+            const actionsCell = document.createElement('td');  // New actions cell
             
             // Edit button
             const editButton = document.createElement('button');
@@ -336,7 +344,10 @@ async function loadChatroomsIntoTable() {
             deleteButton.addEventListener('click', () => deleteChatroom(chatroom.id));
             actionsCell.appendChild(deleteButton);
             
+            // Append the actions cell to the row as the last column
             row.appendChild(actionsCell);
+            
+            // Append the row to the table body
             tableBody.appendChild(row);
         });
         
@@ -356,6 +367,9 @@ async function loadChatroomsIntoTable() {
         alert('Error loading chatrooms. Please try again.');
     }
 }
+
+
+
 
 function openAddUserModal() {
     var addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
@@ -407,6 +421,7 @@ function showEditChatroomModal(chatroomId) {
         // Populate the name and description inputs in the modal with the chatroom's data
         document.getElementById('editChatroomName').value = chatroom.name;
         document.getElementById('editChatroomDescription').value = chatroom.description;
+        document.getElementById('editChatroomCost').value = chatroom.cost
 
         // Show the edit chatroom modal
         const editChatroomModal = new bootstrap.Modal(document.getElementById('editChatroomModal'));
