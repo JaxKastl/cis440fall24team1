@@ -21,6 +21,7 @@ class Chatroom(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
     name = db.Column(db.String(255), nullable=False)  # Name field, required
     description = db.Column(db.Text, nullable=True)  # Description field, optional text
+    cost = db.Column(db.Text, nullable=False) # Cost is required input
 
     # String representation of the Chatroom object for debugging
     def __repr__(self):
@@ -32,12 +33,11 @@ class Expense(db.Model):
     # Define the columns for the 'expense' table
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Primary key
     name = db.Column(db.String(255), nullable=False)  # Name of the expense, required
-    value = db.Column(db.Numeric(10, 2), nullable=False)  # Value of the expense, required
-    cost = db.Column(db.Numeric(10, 2), nullable=True)  # Cost associated with the expense, optional
+    amount = db.Column(db.Numeric(10, 2), nullable=False)  # Amount field from schema
     chatroom_id = db.Column(db.Integer, db.ForeignKey('chatroom.id'), nullable=False)  # Foreign key to chatroom
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to user
     created_at = db.Column(db.DateTime, server_default=db.func.now())  # Timestamp when the record is created
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())  # Timestamp for updates
+    cost = db.Column(db.Numeric(10, 2), nullable=True)  # Cost field from schema
 
     # Relationships
     chatroom = db.relationship('Chatroom', backref=db.backref('expenses', cascade='all, delete-orphan'))  # Relationship to Chatroom
@@ -45,4 +45,4 @@ class Expense(db.Model):
 
     # String representation of the Expense object for debugging
     def __repr__(self):
-        return f'<Expense {self.name}, Value: {self.value}, Cost: {self.cost}>'
+        return f'<Expense {self.name}, Amount: {self.amount}, Cost: {self.cost}>'

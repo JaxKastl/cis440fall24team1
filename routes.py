@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from extensions import db  # Import db from the newly created extensions.py file
-from model import User, Chatroom, Expense # Import the User model
+from model import User, Chatroom, Expense  # Add Expense to imports
 
 # Helper function to decode the JWT token and validate the user
 def validate_token(request):
@@ -206,9 +206,10 @@ def get_all_chatrooms():
 
     # Retrieve all chatrooms from the database
     chatrooms = Chatroom.query.all()
-    chatrooms_data = [{"id": chatroom.id, "name": chatroom.name, "description": chatroom.description} for chatroom in chatrooms]  # Format the chatroom data
+    chatrooms_data = [{"id": chatroom.id, "name": chatroom.name, "description": chatroom.description, "cost": chatroom.cost} for chatroom in chatrooms]  # Format the chatroom data
 
     return jsonify(chatrooms_data), 200  # Return the list of all chatrooms
+
 
 # Route to add a new chatroom (requires JWT token)
 @routes_blueprint.route('/add_chatroom', methods=['POST'])
@@ -221,39 +222,33 @@ def add_chatroom():
 
     name = data.get('name')
     description = data.get('description')
+    cost = data.get('cost')
 
     if not name or not description:
-        return jsonify({"error": "Missing name or description"}), 400
+        return jsonify({"error": "Missing name, category, or cost"}), 400
 
-    new_chatroom = Chatroom(name=name, description=description)
+    new_chatroom = Chatroom(name=name, description=description, cost=cost)
     db.session.add(new_chatroom)
     db.session.commit()
 
     return jsonify({"message": "Chatroom added successfully!"}), 201
 
-# Route to edit a chatroom (requires JWT token)
 @routes_blueprint.route('/edit_chatroom/<int:chatroom_id>', methods=['PUT'])
 def edit_chatroom(chatroom_id):
     current_user, error = validate_token(request)
     if error:
-        return error  # If token validation fails, return the error
+        return error
 
     chatroom = Chatroom.query.get(chatroom_id)
     if not chatroom:
-        return jsonify({"error": "Chatroom not found"}), 404  # Return error if chatroom not found
+        return jsonify({"error": "Chatroom not found"}), 404
 
     data = request.json
-    name = data.get('name')
-    description = data.get('description')
-
-    # Update chatroom information if provided
-    if name:
-        chatroom.name = name
-    if description:
-        chatroom.description = description
+    chatroom.name = data.get('name', chatroom.name)
+    chatroom.description = data.get('description', chatroom.description)
+    chatroom.cost = data.get('cost', chatroom.cost)
 
     db.session.commit()
-
     return jsonify({"message": "Chatroom updated successfully!"}), 200
 
 # Route to delete a chatroom (requires JWT token)
@@ -280,17 +275,25 @@ def add_expense():
 
     data = request.json
     name = data.get('name')
-    value = data.get('value')
+    amount = data.get('amount')  # Changed from value to amount
+    cost = data.get('cost')  # Added cost
     chatroom_id = data.get('chatroom_id')
 
-    if not name or not value or not chatroom_id:
+    if not name or not amount or not chatroom_id:
         return jsonify({"error": "Missing required fields"}), 400
 
-    new_expense = Expense(name=name, value=value, chatroom_id=chatroom_id, user_id=current_user.id)
+    new_expense = Expense(
+        name=name, 
+        amount=amount,  # Changed from value to amount
+        cost=cost,  # Added cost
+        chatroom_id=chatroom_id, 
+        user_id=current_user.id
+    )
     db.session.add(new_expense)
     db.session.commit()
 
     return jsonify({"message": "Expense added successfully!"}), 201
+
 
 @routes_blueprint.route('/edit_expense/<int:expense_id>', methods=['PUT'])
 def edit_expense(expense_id):
@@ -303,8 +306,13 @@ def edit_expense(expense_id):
         return jsonify({"error": "Expense not found or not authorized"}), 404
 
     data = request.json
-    expense.name = data.get('name', expense.name)
-    expense.value = data.get('value', expense.value)
+    if 'name' in data:
+        expense.name = data['name']
+    if 'amount' in data:  # Changed from value to amount
+        expense.amount = data['amount']
+    if 'cost' in data:
+        expense.cost = data['cost']
+    
     db.session.commit()
 
     return jsonify({"message": "Expense updated successfully!"}), 200
@@ -331,6 +339,27 @@ def get_expenses(chatroom_id):
         return error
 
     expenses = Expense.query.filter_by(chatroom_id=chatroom_id, user_id=current_user.id).all()
-    expenses_data = [{"id": e.id, "name": e.name, "value": e.value} for e in expenses]
+    expenses_data = [{
+        "id": e.id, 
+        "name": e.name, 
+        "amount": float(e.amount),  # Changed from value to amount
+        "cost": float(e.cost) if e.cost else None  # Added cost
+    } for e in expenses]
 
     return jsonify(expenses_data), 200
+
+# route for bar graph
+@routes_blueprint.route('/api/chatroom_costs', methods=['GET'])
+def get_chatroom_costs():
+    chatrooms = Chatroom.query.all()
+    return jsonify([{"name": chatroom.name, "cost": chatroom.cost} for chatroom in chatrooms]), 200
+
+#route for pie chart
+@routes_blueprint.route('/api/chatroom_costs_pie', methods=['GET'])
+def get_chatroom_costs_pie():
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    chatrooms = Chatroom.query.all()
+    return jsonify([{"description": chatroom.description, "cost": chatroom.cost} for chatroom in chatrooms]), 200
