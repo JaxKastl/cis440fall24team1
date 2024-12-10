@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from extensions import db  # Import db from the newly created extensions.py file
-from model import User, Chatroom, expense # Import the User model
+from model import User, Chatroom, Expense # Import the User model
 
 # Helper function to decode the JWT token and validate the user
 def validate_token(request):
@@ -286,7 +286,7 @@ def add_expense():
     if not name or not value or not chatroom_id:
         return jsonify({"error": "Missing required fields"}), 400
 
-    new_expense = expense(name=name, value=value, chatroom_id=chatroom_id, user_id=current_user.id)
+    new_expense = Expense(name=name, value=value, chatroom_id=chatroom_id, user_id=current_user.id)
     db.session.add(new_expense)
     db.session.commit()
 
@@ -298,7 +298,7 @@ def edit_expense(expense_id):
     if error:
         return error
 
-    expense = expense.query.get(expense_id)
+    expense = Expense.query.get(expense_id)
     if not expense or expense.user_id != current_user.id:
         return jsonify({"error": "Expense not found or not authorized"}), 404
 
@@ -315,7 +315,7 @@ def delete_expense(expense_id):
     if error:
         return error
 
-    expense = expense.query.get(expense_id)
+    expense = Expense.query.get(expense_id)
     if not expense or expense.user_id != current_user.id:
         return jsonify({"error": "Expense not found or not authorized"}), 404
 
@@ -330,7 +330,7 @@ def get_expenses(chatroom_id):
     if error:
         return error
 
-    expenses = expense.query.filter_by(chatroom_id=chatroom_id, user_id=current_user.id).all()
+    expenses = Expense.query.filter_by(chatroom_id=chatroom_id, user_id=current_user.id).all()
     expenses_data = [{"id": e.id, "name": e.name, "value": e.value} for e in expenses]
 
     return jsonify(expenses_data), 200
