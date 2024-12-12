@@ -1,0 +1,676 @@
+Tri Duong
+triduong0716
+Online
+
+Tri Duong — 11/25/24, 4:54 PM
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Example Page for Your App</title>
+Expand
+message.txt
+16 KB
+/* Place page specific styles */
+/* Be sure to link this to your app html page! */
+
+.glow-effect {
+    animation: text-glow 2s ease-out forwards;
+}
+Expand
+example_app.css
+3 KB
+Sean Carver — 11/25/24, 5:02 PM
+git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+Jax — 11/25/24, 5:03 PM
+git commit -m "Change message"
+Also members who aren't here please share your github names so I can add you as collaborators and you should be able to freely commit your changes
+Sean Carver — 11/25/24, 5:24 PM
+git push origin main --force
+Linh — 11/25/24, 6:09 PM
+We’ll start working on the expense category modal: similar to add chatroom modal except creating the dropdown selection for category type.
+As we talked earlier in class: you can do your own versions, take screenshot and upload here
+We can choose the best one and move forward from there
+I think we should set the deadline for every tasks to keep the process going
+What do you guys think about tomorrow night?
+Sean Carver — 11/26/24, 9:04 PM
+Sorry for the late response, thank you Linh for putting all of that together and sending it to all of us. Has anybody worked on any code yet? I have yet to but am going to spend a little time on it right now
+Jax — 11/26/24, 9:10 PM
+Was gonna work on it when I get home from work, getting out now
+Sean Carver — 11/26/24, 9:28 PM
+Question, do we want to have the budget amount in the add expense category or would we rather have the user do that in the Expense Category section (previously known for joining the chatroom)? Also, I just threw in a bunch of categories, I'm open to have fewer options.
+Image
+Image
+Sean Carver — 11/26/24, 9:39 PM
+Well I changed the name input in the modal to budget amount so when you add it the name is confusing. My work around is just having the user make the name of the expense for simplicity unless we wanted to completely change that section.
+Image
+Tri Duong — 11/26/24, 9:49 PM
+I’ll look at it once I get home
+Btw nice work Sean!
+Sean Carver — 11/26/24, 9:50 PM
+I'll send the updated add chatroom modal just so you all have it and can take it look. Thank you Tri!
+I also changed the Add a New Expense Category button the have a money sign next to it by changing the class to: <i class="fas fa-dollar-sign"></i> Add a New Expense Category
+<!-- Modal for Adding a New Expense -->
+<div class="modal fade" id="addChatroomModal" tabindex="-1" aria-labelledby="addChatroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChatroomModalLabel">Create New Expense</h5>
+Expand
+message.txt
+3 KB
+Jax — 12/2/24, 4:26 PM
+Hey, something came up so I’m going to be around 30-40 mins late to class
+Jax — 12/2/24, 6:18 PM
+Try selecting this setting, if it still doesn’t work we can go through work arounds to update files
+Image
+Jax — 12/4/24, 4:47 PM
+If anyone has made any considerable changes to the current working file, please either upload a copy in discord or update the github so we at least all have the same starting point for the file as of today and know what we need to work on going forward
+Jax — 12/4/24, 5:25 PM
+Image
+Jax — 12/4/24, 5:44 PM
+What time would everyone be able to meet to discuss updates on either Friday or saturday?
+Tri Duong — 12/6/24, 10:31 AM
+I can do anytime on Friday or Saturday morning
+Tri Duong — 12/6/24, 3:43 PM
+I added a column for the cost and edited the edit form for the category. However, I'm having trouble making the cost display in the cost column. Does anyone know how to fix this? I believe we need to edit the route and the SQL query to include the cost.
+Image
+Image
+Jax — 12/6/24, 3:44 PM
+I’m out rn, but I’ll take a look where the cost is being entered in sql and try to find a fix
+Tri Duong — 12/6/24, 3:44 PM
+okay thanks, Jackson
+Tri Duong — 12/6/24, 4:03 PM
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Example Page for Your App</title>
+
+    <!-- External Fonts (Press Start 2P) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 for layout and styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons (e.g., power-off, send button) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS for styling -->
+    <link href="static/css/example_app_page.css" rel="stylesheet">
+
+    <!-- Bootstrap JavaScript for interactivity and offcanvas functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Socket.IO for real-time communication -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+
+    <!-- Data model that interacts with your API -->
+    <script src="static/js/datamodel.js"></script> 
+
+    <!-- JavaScript for handling websockets functionality -->
+    <script src="static/js/chatsocket.js"></script> <!-- Manages WebSocket connections -->
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">Welcome to [App Name] —your smart, simple way to track and master your money! !</h1>
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main" type="button" role="tab" aria-controls="main" aria-selected="true">Expense Tracking</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="account-management-tab" data-bs-toggle="tab" data-bs-target="#account-management" type="button" role="tab" aria-controls="account-management" aria-selected="false">Account Management</button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content mt-3" id="myTabContent">
+            <!-- Main tab content -->
+            <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
+                <!-- Menu Bar -->
+                <div class="d-flex justify-content-between mb-3">
+                    <!-- Existing Buttons -->
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="loadChatroomsIntoTable()">
+                            <i class="fas fa-sync-alt"></i> Refresh Expense Category List
+                        </button>
+                        <button class="btn btn-success" onclick="openAddChatroomModal()">
+                            <i class="fas fa-dollar-sign"></i> Add a New Expense Category
+                        </button>
+                    </div>
+
+                    <!-- Quick Chat Section -->
+                    <div class="d-flex align-items-center">
+                        <span class="me-2 text-nowrap">Quick Chat:</span>
+                        <input type="text" id="quick_chat_message" class="form-control me-2" placeholder="Type a message...">
+                        <select id="quick_chat_room" class="form-select me-2">
+                            <option selected>Select a room...</option>
+                            <!-- Additional room options can be added here -->
+                        </select>
+                        <button class="btn btn-primary" onclick="quickChatSend()">Send</button>
+                    </div>
+                </div>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Expense Name</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Cost</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Account Management tab content -->
+            <div class="tab-pane fade" id="account-management" role="tabpanel" aria-labelledby="account-management-tab">
+                <h2>Manage Users</h2>
+
+                <!-- Menu Bar -->
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-success me-2" onclick="openAddUserModal()">
+                        <i class="fas fa-user-plus"></i> Add a New User
+                    </button>
+                    <button class="btn btn-primary" onclick="loadUsersIntoTable()">
+                        <i class="fas fa-sync-alt"></i> Refresh User List
+                    </button>
+                </div>
+... (257 lines left)
+Collapse
+example_app_page.html
+19 KB
+document.addEventListener('DOMContentLoaded', function() {
+
+    // NOTE: IF YOUR APP USES WEBSOCKETS THEN UNCOMMENT THIS LINE
+    //       TO ESTABLISH A CONNECTION TO THE WEBSOCKET SERVER
+
+    // ChatSocket.connect();  // Establish the WebSocket connection
+Expand
+example_app_page.js
+21 KB
+const DataModel = {
+    users: [],  // Placeholder for data fetched from the API
+    chatrooms: [],
+    admin: false,
+    currentUser: null,  // Placeholder for the currently selected user
+    currentChatroom: null,  // Placeholder for the currently selected chatroom
+Expand
+datamodel.js
+10 KB
+Sean Carver — 12/6/24, 6:08 PM
+Thank you for getting that together and sending the files!
+Jax — 12/6/24, 11:33 PM
+ok, finally got time to check sql, cost isn't being saved anywhere. So ill check the code and see how to alter so it will be saved
+Tri Duong — Yesterday at 12:01 PM
+Have you all figured out how to display and save the cost?
+So that we can move to the next step
+And could you please share the slides with us Linh?
+Jax — Yesterday at 12:31 PM
+I recreated one of the tables so it interworks with the other used table and i hope it will be able to save cost now but ill test it in a minute
+Tri Duong — Yesterday at 12:49 PM
+Okay thanks Jackson
+I think we should schedule a meeting to go over what we have to do next
+Sean Carver — Yesterday at 12:53 PM
+Jackson and Tri, do you think you could hop into a voice channel right now or in a few minutes?
+Or whoever else it seeing these messages right now
+Jax — Yesterday at 12:54 PM
+Updated the table based on recommendations from chatgpt.
+ye
+Tri Duong — Yesterday at 1:04 PM
+/* Place page specific styles */
+/* Be sure to link this to your app html page! */
+
+.glow-effect {
+    animation: text-glow 2s ease-out forwards;
+}
+Expand
+message.txt
+3 KB
+Jax — Yesterday at 1:21 PM
+CREATE TABLE chatroom (
+    id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique identifier for each chatroom (or expense category)
+    name VARCHAR(255) NOT NULL,                -- Name of the expense or category
+    description VARCHAR(255) DEFAULT NULL,     -- Description of the expense or category
+    budget DECIMAL(10, 2) DEFAULT 0.00,        -- Budget set for the category
+    total_expense DECIMAL(10, 2) DEFAULT 0.00, -- Total expenses recorded for this category
+    cost DECIMAL(10, 2) DEFAULT NULL           -- Individual cost (if applicable)
+);
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique identifier for each user
+    email VARCHAR(255) NOT NULL UNIQUE,        -- User's email address (unique)
+    password VARCHAR(255) NOT NULL,            -- Hashed password for secure authentication
+    description VARCHAR(255) DEFAULT NULL,     -- Optional description for the user
+    admin BOOLEAN DEFAULT FALSE                -- Indicates if the user has admin privileges
+);
+CREATE TABLE expense (
+    id INT AUTO_INCREMENT PRIMARY KEY,         -- Unique identifier for each expense
+    name VARCHAR(255) NOT NULL,                -- Name of the expense
+    amount DECIMAL(10, 2) NOT NULL,            -- Amount of the expense
+    chatroom_id INT NOT NULL,                  -- Foreign key to the chatroom table
+    user_id INT NOT NULL,                      -- Foreign key to the user table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the expense was created
+    FOREIGN KEY (chatroom_id) REFERENCES chatroom(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+Tri Duong — Yesterday at 1:37 PM
+Image
+Jax — Yesterday at 1:44 PM
+@routes_blueprint.route('/add_chatroom', methods=['POST'])
+def add_chatroom():
+    current_user, error = validate_token(request)
+    if error:
+        return error
+
+    data = request.json
+    name = data.get('name')
+    description = data.get('description')
+    cost = data.get('cost')
+
+    if not name or not description or cost is None:
+        return jsonify({"error": "Missing name, description, or cost"}), 400
+
+    new_chatroom = Chatroom(name=name, description=description, cost=cost)
+    db.session.add(new_chatroom)
+    db.session.commit()
+
+    return jsonify({"message": "Chatroom added successfully!", "id": new_chatroom.id}), 201
+Sean Carver — Yesterday at 1:48 PM
+In routes: # Route to edit a chatroom (requires JWT token)
+@routes_blueprint.route('/edit_chatroom/<int:chatroom_id>', methods=['PUT'])
+def edit_chatroom(chatroom_id):
+    current_user, error = validate_token(request)
+    if error:
+        return error  # If token validation fails, return the error
+
+    chatroom = Chatroom.query.get(chatroom_id)
+    if not chatroom:
+        return jsonify({"error": "Chatroom not found"}), 404  # Return error if chatroom not found
+
+    data = request.json
+    name = data.get('name')
+    description = data.get('description')
+    cost = data.get('cost')
+
+    # Update chatroom information if provided
+    if name:
+        chatroom.name = name
+    if description:
+        chatroom.description = description
+    if cost:
+        chatroom.cost = cost
+
+    db.session.commit()
+
+    return jsonify({"message": "Expense updated successfully!"}), 200
+Jax — Today at 8:07 AM
+I just sent an email to the professor about meeting on Monday, also if one of you believe your version of the program has any sort of additions that are more up to date than the last thing we worked on wednesday. please put those changes through on github so the professor has the most updated frame of reference for where we are currently at and can provide feedback. Thanks
+Sean Carver — Today at 4:14 PM
+Okay, thank you so much Jackson. Truly appreciate it!
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Example Page for Your App</title>
+
+    <!-- External Fonts (Press Start 2P) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 for layout and styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons (e.g., power-off, send button) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS for styling -->
+    <link href="static/css/example_app_page.css" rel="stylesheet">
+
+    <!-- Bootstrap JavaScript for interactivity and offcanvas functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Socket.IO for real-time communication -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+
+    <!-- Data model that interacts with your API -->
+    <script src="static/js/datamodel.js"></script> 
+
+    <!-- JavaScript for handling websockets functionality -->
+    <script src="static/js/chatsocket.js"></script> <!-- Manages WebSocket connections -->
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">Welcome to FinFlow —your smart, simple way to track and master your money! !</h1>
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="main-tab" data-bs-toggle="tab" data-bs-target="#main" type="button" role="tab" aria-controls="main" aria-selected="true">Expense Tracking</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="account-management-tab" data-bs-toggle="tab" data-bs-target="#account-management" type="button" role="tab" aria-controls="account-management" aria-selected="false">Account Management</button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content mt-3" id="myTabContent">
+            <!-- Main tab content -->
+            <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
+                <!-- Menu Bar -->
+                <div class="d-flex justify-content-between mb-3">
+                    <!-- Existing Buttons -->
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="loadChatroomsIntoTable()">
+                            <i class="fas fa-sync-alt"></i> Refresh Expense Category List
+                        </button>
+                        <button class="btn btn-success" onclick="openAddChatroomModal()">
+                            <i class="fas fa-dollar-sign"></i> Add a New Expense Category
+                        </button>
+                    </div>
+
+                    <!-- Quick Chat Section -->
+                    <div class="d-flex align-items-center">
+                        <span class="me-2 text-nowrap">Quick Chat:</span>
+                        <input type="text" id="quick_chat_message" class="form-control me-2" placeholder="Type a message...">
+                        <select id="quick_chat_room" class="form-select me-2">
+                            <option selected>Select a room...</option>
+                            <!-- Additional room options can be added here -->
+                        </select>
+                        <button class="btn btn-primary" onclick="quickChatSend()">Send</button>
+                    </div>
+                </div>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Expense Name</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Cost</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Account Management tab content -->
+            <div class="tab-pane fade" id="account-management" role="tabpanel" aria-labelledby="account-management-tab">
+                <h2>Manage Users</h2>
+
+                <!-- Menu Bar -->
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="btn btn-success me-2" onclick="openAddUserModal()">
+                        <i class="fas fa-user-plus"></i> Add a New User
+                    </button>
+                    <button class="btn btn-primary" onclick="loadUsersIntoTable()">
+                        <i class="fas fa-sync-alt"></i> Refresh User List
+                    </button>
+                </div>
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Email</th>
+                            <th scope="col">User Type</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>example1@email.com</td>
+                            <td>
+                                User 1 description goes here.
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>example2@email.com</td>
+                            <td>
+                                User 2 description goes here.
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>example3@email.com</td>
+                            <td>
+                                User 3 description goes here.
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm me-2">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+   <!-- Modal for Adding a New User -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Create New Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <!-- Email input -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                    </div>
+                    <!-- Password input -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <!-- Description input -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description" required></textarea>
+                    </div>
+                    <!-- Administrator checkbox -->
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isAdmin" name="isAdmin">
+                        <label class="form-check-label" for="isAdmin">Account will be an administrator</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalCreateButton" type="submit" class="btn btn-primary" form="addUserForm">Create Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Editing a User -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <!-- Email input -->
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" placeholder="Enter email" required>
+                    </div>
+                    <!-- Description input -->
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" name="description" rows="3" placeholder="Enter description" required></textarea>
+                    </div>
+                    <!-- Administrator checkbox -->
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editIsAdmin" name="isAdmin">
+                        <label class="form-check-label" for="editIsAdmin">Account will be an administrator</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalEditButton" type="submit" class="btn btn-primary" form="editUserForm">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding a New Expense -->
+<div class="modal fade" id="addChatroomModal" tabindex="-1" aria-labelledby="addChatroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChatroomModalLabel">Create New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addChatroomForm">
+                    <!-- Expense input -->
+                    <div class="mb-3">
+                        <label for="chatroomName" class="form-label">Expense Name</label>
+                        <input type="text" class="form-control" id="chatroomName" name="name" placeholder="Enter expense name" required>
+                    </div>
+                    <!-- Expense Category input -->
+                    <div class="mb-3">
+                        <label for="chatroomName" class="form-label">Expense Category</label>
+                        <select class="form-select" id="chatroomDescription" name="name" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Dining Out">Dining Out</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Education">Education</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Debt Payments">Debt Payments</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Childcare">Childcare</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Personal Care">Personal Care</option>
+                            <option value="Gifts/Donations">Gifts/Donations</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+                    <!-- cost input -->
+                    <div class="mb-3">
+                        <label for="chatroomName" class="form-label">Cost</label>
+                        <input type="text" class="form-control" id="expenseCost" name="name" placeholder="Enter cost" required>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalCreateChatroomButton" type="submit" class="btn btn-primary" form="addChatroomForm">Create Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal for Editing a Chatroom -->
+<div class="modal fade" id="editChatroomModal" tabindex="-1" aria-labelledby="editChatroomModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editChatroomModalLabel">Edit Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editChatroomForm">
+                    <!-- Chatroom name input -->
+                    <div class="mb-3">
+                        <label for="editChatroomName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="editChatroomName" name="name" placeholder="Enter chatroom name" required>
+                    </div>
+                    
+                  
+                    
+                    <!-- Category dropdown -->
+                    <div class="mb-3">
+                        <label for="editChatroomDescription" class="form-label">Category</label>
+                        <select class="form-select" id="editChatroomDescription" name="description" required>
+                            <option value="" disabled>Select a category</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Dining Out">Dining Out</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Education">Education</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Debt Payments">Debt Payments</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Childcare">Childcare</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Personal Care">Personal Care</option>
+                            <option value="Gifts/Donations">Gifts/Donations</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+
+                    <!-- Cost input -->
+                    <div class="mb-3">
+                        <label for="editChatroomCost" class="form-label">Cost</label>
+                        <input type="number" class="form-control" id="editChatroomCost" name="cost" placeholder="Enter cost" required>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="modalEditChatroomButton" type="submit" class="btn btn-primary" form="editChatroomForm">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="static/js/example_app_page.js"></script> <!-- Handles user interactions on the websocket -->
+
+<!-- This is the only line I have changed to test things out -->
+
+</body>
+</html>
+example_app_page.html
+19 KB

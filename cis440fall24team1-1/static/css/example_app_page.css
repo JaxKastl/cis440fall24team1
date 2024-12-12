@@ -1,0 +1,85 @@
+/* Place page specific styles */
+/* Be sure to link this to your app html page! */
+
+.glow-effect {
+    animation: text-glow 2s ease-out forwards;
+}
+
+@keyframes text-glow {
+    0% {
+        text-shadow: 
+            0 0 10px rgba(255, 215, 0, 1),   /* Bright center glow */
+            0 0 20px rgba(255, 215, 0, 0.8), /* Outer glow */
+            0 0 30px rgba(255, 215, 0, 0.6), /* Fainter, further glow */
+            0 0 40px rgba(255, 215, 0, 0.4); /* Distant glow */
+    }
+    100% {
+        text-shadow: 
+            0 0 0 rgba(255, 215, 0, 0); /* Fade back to normal */
+    }
+    
+}
+
+/* Vintage background for the page */
+body {
+    background: linear-gradient(135deg, #e8f5e9, #bbdefb); /* Warm gradient */
+    font-family: 'Georgia', serif; /* Elegant vintage font for text */
+    color: #4b3832; /* Dark coffee brown for readability */
+    padding: 20px;
+}
+
+/* Styling for the header */
+h1 {
+    font-family: 'Press Start 2P', cursive; /* Retro gaming font */
+    color: #ff6f61; /* Vibrant coral for attraction */
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3); /* Adds depth and focus */
+    background-color: #fdf6e3; /* Light cream for a soft highlight */
+    padding: 15px 20px;
+    border-radius: 10px;
+    border: 2px solid #d4a373; /* Gold-tan border for vintage charm */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
+    text-align: center;
+}
+
+/* Button styling for a vintage look */
+button {
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+    background-color: #c97c5d; /* Warm terracotta */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #a65e47; /* Darker terracotta on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+/* Table styling */
+table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border-collapse: separate;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+th {
+    background-color: #d4a373; /* Gold-tan header background */
+    color: #fff;
+}
+
+td {
+    background-color: #fdf6e3; /* Soft cream for rows */
+}
+
+/* Modal styling for vintage effect */
+.modal-content {
+    background-color: #fdf6e3;
+    color: #4b3832;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
